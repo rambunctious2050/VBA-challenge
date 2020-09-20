@@ -1,0 +1,209 @@
+'VBA Challenge, HW 2
+'Ramyata Upmaka
+'9/20/20
+
+
+Sub vba_challenge():
+
+'For each Ticker symbol, find the 'Yearly Change' from opening price at the beginning of a given year to the closing price at the end of that year.
+'The percent change from opening price at the beginning of a given year to the closing price at the end of that year.
+'The total stock volume of the stock.
+
+'_________________________________________________________________________________________________________________________
+
+'Loop through all sheets
+For Each ws In Worksheets
+
+    'Add titles
+    ws.Range("I1").Value = "Ticker"
+    ws.Range("J1").Value = "Yearly Change"
+    ws.Range("K1").Value = "Percent Change"
+    ws.Range("L1").Value = "Total Stock Volume"
+    ws.Range("N2").Value = "Greatest % Increase"
+    ws.Range("N3").Value = "Greatest % Decrease"
+    ws.Range("N4").Value = "Greatest Total Volume"
+    ws.Range("O1").Value = "Ticker"
+    ws.Range("P1").Value = "Value"
+    
+    
+    'Declare variables
+    Dim i As Double
+    Dim ticker() As String
+    Dim yearly_change As Double
+    Dim percent_change As Double
+    
+    'First find the number of rows in the active worksheet
+    Dim LastRow As Double
+    Dim ticker_counter As Double
+    LastRow = ws.Cells(Cells.Rows.Count, "A").End(xlUp).Row
+    ticker_counter = WorksheetFunction.CountA(Range("A1:A" & LastRow))
+    
+    'Count the number of unique ticker symbols, initialize variables to keep track of ticker
+    ReDim ticker(ticker_counter)
+    ticker(0) = ws.Range("A2").Value
+    Dim previous_ticker As String
+    previous_ticker = ticker(0)
+    
+   'Initialize opening price, store the opening price for the first ticker
+    Dim open_price As Double
+    open_price = ws.Range("C2").Value
+    'Initialize closing price
+    Dim close_price As Double
+    'Initialize stock_volume
+    Dim total_stock_volume As Double
+    total_stock_volume = ws.Range("G2").Value
+    
+    Dim currlen As Double
+    currlen = 1
+    
+    'Need another counter to keep track of where to print the ticker, yearly change, percent change, total stock volume
+    Dim j As Double
+    j = 2
+    
+    'Capture all the unique Ticker symbols in the "ticker()" variable. Go through each row of data and find where a new ticker starts
+    For i = 2 To ticker_counter
+    
+        'If the ticker in the previous row is different from that in the current row, do some calculations
+        If previous_ticker <> ws.Range("A" & i).Value Then
+            
+            'Store the closing price for the previous_ticker, calculate yearly change, and percent change for previous_ticker
+                close_price = ws.Range("F" & (i - 1)).Value
+                yearly_change = close_price - open_price
+                
+            'For edge cases where either open_price or both open_price and close_price are equal to 0, set the percent_change to the appropriate value
+                If (open_price = 0 And close_price = 0) Then
+                    percent_change = 0
+                ElseIf (open_price = 0 And close_price > 0) Then
+                    percent_change = 1
+                Else
+                    percent_change = yearly_change / open_price
+                End If
+                    
+            'Print ticker, yearly_change, percent_change, total_volume_stock and increment j
+                ws.Range("I" & j) = previous_ticker
+                ws.Range("J" & j) = yearly_change
+                
+                If yearly_change < 0 Then
+                    ' Set the Cell Colors to Red if yearly_change is negative
+                    ws.Range("J" & j).Interior.ColorIndex = 3
+                Else
+                    ' Set the Font Color to Green if yearly_change is positive
+                    ws.Range("J" & j).Interior.ColorIndex = 4
+                End If
+                
+                ws.Range("K" & j).Value = Format(percent_change, "Percent")
+                ws.Range("L" & j).Value = total_stock_volume
+                j = j + 1
+                
+            'Set new ticker value, open_price, set the total_stock_volume equal to new starting stock_volume
+                ticker(currlen) = ws.Range("A" & i).Value
+                previous_ticker = ws.Range("A" & i).Value
+                currlen = currlen + 1
+                open_price = ws.Range("C" & i).Value
+                total_stock_volume = ws.Range("G" & i).Value
+                   
+           End If
+           
+           'If ticker remains unchanged, add volume at current row to the total_stock_volume for current ticker
+            total_stock_volume = total_stock_volume + Range("G" & i).Value
+        
+    Next i
+    
+    'Calculate the yearly_change, percent_change, total_volume_stock for the last ticker in the active worksheet
+    'The last i value is equal to ticker_counter
+    close_price = ws.Range("F" & (ticker_counter)).Value
+    yearly_change = close_price - open_price
+    
+    'For edge cases where either open_price or both open_price and close_price are equal to 0, set the percent_change to the appropriate value
+    If (open_price = 0 And close_price = 0) Then
+        percent_change = 0
+    ElseIf (open_price = 0 And close_price > 0) Then
+        percent_change = 1
+    Else
+        percent_change = yearly_change / open_price
+    End If
+    '_______________________________________________________________________________________________________________________
+    
+    'Print ticker, yearly_change, percent_change, total_volume_stock for the last ticker in the active worksheet
+    ws.Range("I" & j).Value = previous_ticker
+    ws.Range("J" & j).Value = yearly_change
+    
+    If yearly_change < 0 Then
+        ' Set the Cell Colors to Red if yearly_change is negative
+        ws.Range("J" & j).Interior.ColorIndex = 3
+    Else
+        ' Set the Cell Color to Green if yearly_change is positive
+        ws.Range("J" & j).Interior.ColorIndex = 4
+    End If
+    
+    ws.Range("K" & j).Value = Format(percent_change, "Percent")
+    ws.Range("L" & j).Value = total_stock_volume
+    
+    'Shorten the ticker() variable by removing empty rows
+    ReDim Preserve ticker(currlen - 1)
+    
+    '__________________________________________________________________________________________________________________________________
+    
+    'Now find the ticker with the 'Greatest % Increase', 'Greatest % Decrease' and 'Greatest Total Volume' and print those values
+    'First find the number of rows with data
+    Dim LastRow_new As Double
+    Dim ticker_counter_new As Double
+    LastRow_new = ws.Cells(Cells.Rows.Count, "I").End(xlUp).Row
+    ticker_counter_new = WorksheetFunction.CountA(Range("I1:I" & LastRow_new))
+    
+    'Declare variables
+    Dim a As Integer
+    Dim Greatest_Percent_Increase As Double
+    Dim Greatest_Percent_Decrease As Double
+    Dim Ticker_new_PerInc As String
+    Dim Ticker_new_PerDec As String
+    Dim Ticker_new_TotVol As String
+    Dim Greatest_Tot_Stock_Vol As Double
+    'Initialize variables
+    Ticker_new_PerInc = ws.Range("I2").Value
+    Ticker_new_PerDec = ws.Range("I2").Value
+    Ticker_new_TotVol = ws.Range("I2").Value
+    Greatest_Percent_Increase = ws.Range("K2").Value
+    Greatest_Percent_Decrease = ws.Range("K2").Value
+    Greatest_Tot_Stock_Vol = ws.Range("L2").Value
+    
+    'Cycle through each row and store the relevant ticker, percent_change and total_stock_volume
+    For a = 2 To ticker_counter_new
+        
+        'Scan for Greatest % Increase
+        If Greatest_Percent_Increase < ws.Range("K" & a).Value Then
+            'Change Greatest_Percent_Increase to the new value in the "a" cell, capture the ticker value
+            Greatest_Percent_Increase = ws.Range("K" & a).Value
+            Ticker_new_PerInc = ws.Range("I" & a).Value
+        End If
+        
+        'Scan for Greatest % Decrease
+        If Greatest_Percent_Decrease > ws.Range("K" & a).Value Then
+            'Change Greatest_Percent_Decrease to the new value in the "a" cell, capture the ticker value
+            Greatest_Percent_Decrease = ws.Range("K" & a).Value
+            Ticker_new_PerDec = ws.Range("I" & a).Value
+        End If
+        
+        'Scan for Greatest Total Stock Volume
+        If Greatest_Tot_Stock_Vol < ws.Range("L" & a).Value Then
+            'Change Greatest_Tot_Stock_Vol to the new value in the "a" cell, capture the ticker value
+            Greatest_Tot_Stock_Vol = ws.Range("L" & a).Value
+            Ticker_new_TotVol = ws.Range("I" & a).Value
+        End If
+        
+    Next a
+    
+    'Print the Greatest_Percent_Increase
+    ws.Range("O2").Value = Ticker_new_PerInc
+    ws.Range("P2").Value = Format(Greatest_Percent_Increase, "Percent")
+    'Print the Greatest_Percent_Decrease
+    ws.Range("O3").Value = Ticker_new_PerDec
+    ws.Range("P3").Value = Format(Greatest_Percent_Decrease, "Percent")
+    'Print the Greatest_Tot_Stock_Vol
+    ws.Range("O4").Value = Ticker_new_TotVol
+    ws.Range("P4").Value = Greatest_Tot_Stock_Vol
+      
+Next ws
+
+End Sub
+
