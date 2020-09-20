@@ -9,7 +9,8 @@ Sub vba_challenge():
 'The percent change from opening price at the beginning of a given year to the closing price at the end of that year.
 'The total stock volume of the stock.
 
-'Some baseline assumptions: 1. User has alphabetized data by ticker name, 2. Data in a given worksheet is from a single year.
+'The user must format the the excel worksheet, such that the code can run accurately. Please ensure the following are true before starting : 
+'1. User has alphabetized data by ticker name, 2. Data in a given worksheet is from a single year. 3. Data for each ticker has been sorted chronologically.
 
 '_________________________________________________________________________________________________________________________
 
