@@ -1,4 +1,4 @@
-'VBA Challenge, HW 2
+'VBA Challenge
 'Ramyata Upmaka
 '9/20/20
 
@@ -8,6 +8,8 @@ Sub vba_challenge():
 'For each Ticker symbol, find the 'Yearly Change' from opening price at the beginning of a given year to the closing price at the end of that year.
 'The percent change from opening price at the beginning of a given year to the closing price at the end of that year.
 'The total stock volume of the stock.
+
+'Some baseline assumptions: 1. User has alphabetized data by ticker name, 2. Data in a given worksheet is from a single year.
 
 '_________________________________________________________________________________________________________________________
 
